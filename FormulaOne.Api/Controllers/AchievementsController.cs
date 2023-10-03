@@ -17,7 +17,7 @@ namespace FormulaOne.Api.Controllers
         public async Task<IActionResult> GetDriverAchievements(Guid driverId)
         {
             var driverAchievements=await _unitOfWork.Achievements.GetAchievementAsync(driverId);
-            if(driverAchievements == null) return NotFound("achievements not found");
+            if(driverAchievements == null) return NotFound("Achievements not found");
             var result = _mapper.Map<DriverAchievementResponse>(driverAchievements);
           return Ok(result);
         }

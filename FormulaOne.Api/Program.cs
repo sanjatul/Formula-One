@@ -1,6 +1,10 @@
 using FormulaOne.DataService.Data;
 using FormulaOne.DataService.Repositories;
 using FormulaOne.DataService.Repositories.Interfaces;
+using FormulaOne.Services.General;
+using FormulaOne.Services.General.Interfaces;
+using Hangfire;
+using Hangfire.Storage.SQLite;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +20,15 @@ builder.Services.AddDbContext<AppDbContext>(
     );
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddHangfire(config=>config
+.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+.UseSimpleAssemblyNameTypeSerializer()
+.UseRecommendedSerializerSettings()
+.UseSQLiteStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IMerchService, MerchService>();
+builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,10 +38,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.UseHangfireDashboard();
+app.MapHangfireDashboard("/hangfire");
 app.Run();
