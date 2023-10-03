@@ -62,6 +62,7 @@ namespace FormulaOne.Api.Controllers
             if (driver == null) return NotFound();
             await _unitOfWork.Drivers.Delete(driverId);
             await _unitOfWork.CompleteAsync();
+            RecurringJob.AddOrUpdate<IMerchService>(x=>x.RemoveMerch(driverId),Cron.Minutely);
             return NoContent();
         }
     }
