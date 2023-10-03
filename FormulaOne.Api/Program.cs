@@ -45,16 +45,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseHangfireDashboard();
-app.MapHangfireDashboard("/hangfire",new DashboardOptions()
-{
-    DashboardTitle="Formula One Service Dash",
-    Authorization = new[]
-    {
-        new HangfireCustomBasicAuthenticationFilter()
-        {
-            Pass="pass",
-            User="siam"
-        }
-    }
-});
+app.MapHangfireDashboard("/hangfire");
 app.Run();

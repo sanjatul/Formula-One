@@ -32,6 +32,8 @@ namespace FormulaOne.Api.Controllers
             await _unitOfWork.CompleteAsync();
             //Fire and Forget Job
             var jobId = BackgroundJob.Enqueue<IEmailService>(x=>x.SendWelcomeEmail("sh@gmail.com",$"{driver.FirstName} {driver.LastName}"));
+            //Continue job
+            BackgroundJob.ContinueJobWith<IMerchService>(jobId, x=>x.CreateMerch($"{driver.FirstName} {driver.LastName}"));
             Console.WriteLine(jobId);
             return CreatedAtAction(nameof(GetDriver), new { driverId = result.Id }, result);
         }
@@ -51,6 +53,8 @@ namespace FormulaOne.Api.Controllers
         public async Task<IActionResult> GetAllDrivers()
         {
             var driver = await _unitOfWork.Drivers.All();
+            //Recurring Job
+            RecurringJob.AddOrUpdate<IMaintenanceService>(x => x.SyncRecord(), Cron.Minutely);
             return Ok(_mapper.Map<IEnumerable<GetDriverResponse>>(driver));
         }
 
@@ -62,8 +66,8 @@ namespace FormulaOne.Api.Controllers
             if (driver == null) return NotFound();
             await _unitOfWork.Drivers.Delete(driverId);
             await _unitOfWork.CompleteAsync();
-            //Recurring Job
-            RecurringJob.AddOrUpdate<IMerchService>(x=>x.RemoveMerch(driverId),Cron.Minutely);
+            var jobId = BackgroundJob.Enqueue<IMerchService>(x => x.RemoveMerch(driverId));
+           
             return NoContent();
         }
     }

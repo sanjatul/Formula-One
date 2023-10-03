@@ -9,9 +9,9 @@ namespace FormulaOne.Services.General
 {
     public class MerchService : IMerchService
     {
-        public void CreateMerch(Guid driverId)
+        public void CreateMerch(string name)
         {
-            Console.WriteLine($"this will create merch for driver {driverId}");
+            Console.WriteLine($"This will create merch for driver {name}");
         }
 
         public void RemoveMerch(Guid driverId)
