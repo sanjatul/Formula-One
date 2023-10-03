@@ -30,7 +30,7 @@ namespace FormulaOne.Api.Controllers
             var result = _mapper.Map<Driver>(driver);
             await _unitOfWork.Drivers.Add(result);
             await _unitOfWork.CompleteAsync();
-
+            //Fire and Forget Job
             var jobId = BackgroundJob.Enqueue<IEmailService>(x=>x.SendWelcomeEmail("sh@gmail.com",$"{driver.FirstName} {driver.LastName}"));
             Console.WriteLine(jobId);
             return CreatedAtAction(nameof(GetDriver), new { driverId = result.Id }, result);
@@ -42,6 +42,9 @@ namespace FormulaOne.Api.Controllers
             var result = _mapper.Map<Driver>(driver);
             await _unitOfWork.Drivers.Update(result);
             await _unitOfWork.CompleteAsync();
+            //Delayed Job
+            var jobId = BackgroundJob.Schedule<IMaintenanceService>(x => x.SyncRecord(),TimeSpan.FromSeconds(20));
+            Console.WriteLine(jobId);
             return NoContent();
         }
         [HttpGet]
