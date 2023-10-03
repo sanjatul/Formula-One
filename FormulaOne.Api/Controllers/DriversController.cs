@@ -3,6 +3,8 @@ using FormulaOne.DataService.Repositories.Interfaces;
 using FormulaOne.Entities.DbSet;
 using FormulaOne.Entities.Dtos.Requests;
 using FormulaOne.Entities.Dtos.Responses;
+using FormulaOne.Services.General.Interfaces;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FormulaOne.Api.Controllers
@@ -28,6 +30,9 @@ namespace FormulaOne.Api.Controllers
             var result = _mapper.Map<Driver>(driver);
             await _unitOfWork.Drivers.Add(result);
             await _unitOfWork.CompleteAsync();
+
+            var jobId = BackgroundJob.Enqueue<IEmailService>(x=>x.SendWelcomeEmail("sh@gmail.com",$"{driver.FirstName} {driver.LastName}"));
+            Console.WriteLine(jobId);
             return CreatedAtAction(nameof(GetDriver), new { driverId = result.Id }, result);
         }
         [HttpPut("")]
