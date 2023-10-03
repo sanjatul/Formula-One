@@ -5,6 +5,7 @@ using FormulaOne.Services.General;
 using FormulaOne.Services.General.Interfaces;
 using Hangfire;
 using Hangfire.Storage.SQLite;
+using HangfireBasicAuthenticationFilter;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,5 +45,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseHangfireDashboard();
-app.MapHangfireDashboard("/hangfire");
+app.MapHangfireDashboard("/hangfire",new DashboardOptions()
+{
+    DashboardTitle="Formula One Service Dash",
+    Authorization = new[]
+    {
+        new HangfireCustomBasicAuthenticationFilter()
+        {
+            Pass="pass",
+            User="siam"
+        }
+    }
+});
 app.Run();
