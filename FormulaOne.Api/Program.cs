@@ -1,4 +1,5 @@
 using FormulaOne.DataService.Data;
+using FormulaOne.DataService.Repositories;
 using FormulaOne.DataService.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(
     options=>options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
     );
-builder.Services.AddScoped<IUnitOfWork,IUnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
